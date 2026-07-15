@@ -1,0 +1,33 @@
+name: 📧 삼성전자 공급망 뉴스레터 발송
+
+on:
+  schedule:
+    # 매일 오전 8시 KST = UTC 23:00 (전날)
+    - cron: "0 23 * * *"
+  workflow_dispatch:  # 수동 실행 허용
+
+jobs:
+  send-newsletter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: 📥 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: 🐍 Python 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 📦 패키지 설치
+        run: pip install requests
+
+      - name: 📧 뉴스레터 실행
+        env:
+          NAVER_CLIENT_ID:     ${{ secrets.NAVER_CLIENT_ID }}
+          NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
+          GMAIL_USER:          ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD:  ${{ secrets.GMAIL_APP_PASSWORD }}
+          RECIPIENTS:          ${{ secrets.RECIPIENTS }}
+        run: python newsletter.py
